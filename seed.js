@@ -21,10 +21,10 @@ const { connect } = require('./db/connection');
   const db = await connect();
 
   // OPTIONAL: clear existing data so re-seeding is idempotent
-  // await db.collection('users').deleteMany({});
-  // await db.collection('projects').deleteMany({});
-  // await db.collection('tasks').deleteMany({});
-  // await db.collection('notes').deleteMany({});
+  await db.collection('users').deleteMany({});
+  await db.collection('projects').deleteMany({});
+  await db.collection('tasks').deleteMany({});
+  await db.collection('notes').deleteMany({});
 
   // =============================================================================
   //  TODO: Insert your seed data below.
@@ -53,6 +53,64 @@ const { connect } = require('./db/connection');
   //      createdAt: new Date()
   //    }
   // =============================================================================
+
+  //users
+  const u1pass = await bcrypt.hash('rohail123', 10);
+  const u1 = await db.collection('users').insertOne({
+    username: 'rohail',
+    email: 'rohail@gmail.com',
+    password: hashedPassword,
+    createdAt: new Date()
+  });
+  const uID1 = u1.insertedId
+
+  const u2pass = await bcrypt.hash('talha123', 10);
+  const u2 = await db.collection('users').insertOne({
+    username: 'talha',
+    email: 'talha@gmail.com',
+    password: hashedPassword,
+    createdAt: new Date()
+  });
+  const uID2 = u2.insertedId
+
+  //projects
+  const pID1 = (await db.collection('projects').insertOne({
+    ownerId: uID1,
+    name: "Project 1",
+    description: "Website Frontend",
+    archived: false,
+    createdAt: new Date()
+  })).insertedId;
+
+  const pID2 = (await db.collection('projects').insertOne({
+    ownerId: uID1,
+    name: "Project 2",
+    description: "Website Backend",
+    archived: false,
+    createdAt: new Date()
+  })).insertedId;
+
+  const pID3 = (await db.collection('projects').insertOne({
+    ownerId: uID2,
+    name: "Project 3",
+    description: "App Frontend",
+    archived: false,
+    createdAt: new Date()
+  })).insertedId;
+
+  const pID4 = (await db.collection('projects').insertOne({
+    ownerId: uID2,
+    name: "Project 4",
+    description: "App Backend",
+    archived: false,
+    createdAt: new Date()
+  })).insertedId;
+
+
+
+
+
+
 
   console.log('TODO: implement seed.js');
   process.exit(0);
