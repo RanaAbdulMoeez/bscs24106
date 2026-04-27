@@ -57,18 +57,18 @@ const { connect } = require('./db/connection');
   //users
   const u1pass = await bcrypt.hash('rohail123', 10);
   const u1 = await db.collection('users').insertOne({
-    username: 'rohail',
+    name: 'rohail',
     email: 'rohail@gmail.com',
-    password: u1pass,
+    passwordHash: u1pass,
     createdAt: new Date()
   });
   const uID1 = u1.insertedId
 
   const u2pass = await bcrypt.hash('talha123', 10);
   const u2 = await db.collection('users').insertOne({
-    username: 'talha',
+    name: 'talha',
     email: 'talha@gmail.com',
-    password: u2pass,
+    passwordHash: u2pass,
     createdAt: new Date()
   });
   const uID2 = u2.insertedId
