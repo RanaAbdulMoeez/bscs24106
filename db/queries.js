@@ -46,7 +46,7 @@ const { ObjectId } = require('mongodb');
 async function signupUser(db, userData) {
   const newUser = {
     email: userData.email,
-    passwordHash: userData.passwordHash,
+    password: userData.password,
     name: userData.name,
     createdAt: new Date()
   };
@@ -70,7 +70,6 @@ async function signupUser(db, userData) {
 async function loginFindUser(db, email) {
   return await db.collection("users").findOne({ email: email });
 }
-
 /**
  * Query 3: listUserProjects
  * -------------------------------------------------------------
@@ -87,8 +86,10 @@ async function loginFindUser(db, email) {
  * Hint: find with two filter conditions, then .sort().toArray().
  */
 async function listUserProjects(db, ownerId) {
-  // TODO: implement
-  throw new Error('listUserProjects not implemented');
+  return await db.collection("projects")
+    .find({ ownerId: ownerId, archived: false })
+    .sort({ createdAt: -1 }) // -1 means "newest first"
+    .toArray();
 }
 
 /**
@@ -105,10 +106,15 @@ async function listUserProjects(db, ownerId) {
  * Hint: insertOne again — just remember to add the defaults yourself.
  */
 async function createProject(db, projectData) {
-  // TODO: implement
-  throw new Error('createProject not implemented');
+  const newProject = {
+    ownerId: projectData.ownerId,
+    name: projectData.name,
+    description: projectData.description || "",
+    archived: false,
+    createdAt: new Date()
+  };
+  return await db.collection("projects").insertOne(newProject);
 }
-
 /**
  * Query 5: archiveProject
  * -------------------------------------------------------------
@@ -125,10 +131,11 @@ async function createProject(db, projectData) {
  * Hint: updateOne with the $set operator.
  */
 async function archiveProject(db, projectId) {
-  // TODO: implement
-  throw new Error('archiveProject not implemented');
+  return await db.collection("projects").updateOne(
+    { _id: projectId },
+    { $set: { archived: true } }
+  );
 }
-
 /**
  * Query 6: listProjectTasks
  * -------------------------------------------------------------
@@ -147,8 +154,13 @@ async function archiveProject(db, projectId) {
  *       the caller passed one. Then chain .sort({ priority: -1, createdAt: -1 }).
  */
 async function listProjectTasks(db, projectId, status) {
-  // TODO: implement
-  throw new Error('listProjectTasks not implemented');
+  const filter = { projectId: projectId };
+  if (status) { filter.status = status; } // Only filter by status if the user asked for one
+ 
+  return await db.collection("tasks")
+    .find(filter)
+    .sort({ priority: -1, createdAt: -1 })
+    .toArray();
 }
 
 /**
@@ -173,8 +185,17 @@ async function listProjectTasks(db, projectId, status) {
  * Hint: insertOne. Apply defaults for any missing optional fields.
  */
 async function createTask(db, taskData) {
-  // TODO: implement
-  throw new Error('createTask not implemented');
+  const newTask = {
+    ownerId: taskData.ownerId,
+    projectId: taskData.projectId,
+    title: taskData.title,
+    priority: taskData.priority || 1,
+    tags: taskData.tags || [],
+    subtasks: taskData.subtasks || [],
+    status: "todo",
+    createdAt: new Date()
+  };
+  return await db.collection("tasks").insertOne(newTask);
 }
 
 /**
@@ -190,8 +211,10 @@ async function createTask(db, taskData) {
  * Hint: updateOne + $set.
  */
 async function updateTaskStatus(db, taskId, newStatus) {
-  // TODO: implement
-  throw new Error('updateTaskStatus not implemented');
+  return await db.collection("tasks").updateOne(
+    { _id: taskId },
+    { $set: { status: newStatus } }
+  );
 }
 
 /**
@@ -211,8 +234,10 @@ async function updateTaskStatus(db, taskId, newStatus) {
  * Hint: which array operator silently skips duplicates? It is NOT $push.
  */
 async function addTaskTag(db, taskId, tag) {
-  // TODO: implement
-  throw new Error('addTaskTag not implemented');
+  return await db.collection("tasks").updateOne(
+    { _id: taskId },
+    { $addToSet: { tags: tag } }
+  );
 }
 
 /**
@@ -232,9 +257,12 @@ async function addTaskTag(db, taskId, tag) {
  * Hint: $pull.
  */
 async function removeTaskTag(db, taskId, tag) {
-  // TODO: implement
-  throw new Error('removeTaskTag not implemented');
+  return await db.collection("tasks").updateOne(
+    { _id: taskId },
+    { $pull: { tags: tag } }
+  );
 }
+
 
 /**
  * Query 11: toggleSubtask
@@ -263,9 +291,12 @@ async function removeTaskTag(db, taskId, tag) {
  *       matched), and your $set path uses `subtasks.$.done`.
  */
 async function toggleSubtask(db, taskId, subtaskTitle, newDone) {
-  // TODO: implement
-  throw new Error('toggleSubtask not implemented');
+  return await db.collection("tasks").updateOne(
+    { _id: taskId, "subtasks.title": subtaskTitle },
+    { $set: { "subtasks.$.done": newDone } }
+  );
 }
+
 
 /**
  * Query 12: deleteTask
@@ -279,8 +310,7 @@ async function toggleSubtask(db, taskId, subtaskTitle, newDone) {
  * Hint: deleteOne.
  */
 async function deleteTask(db, taskId) {
-  // TODO: implement
-  throw new Error('deleteTask not implemented');
+  return await db.collection("tasks").deleteOne({ _id: taskId });
 }
 
 /**
@@ -303,10 +333,14 @@ async function deleteTask(db, taskId) {
  *       Build the filter conditionally based on whether projectId was passed.
  */
 async function searchNotes(db, ownerId, tags, projectId) {
-  // TODO: implement
-  throw new Error('searchNotes not implemented');
+  const filter = { ownerId: ownerId, tags: { $in: tags } };
+  if (projectId) { filter.projectId = projectId; }
+ 
+  return await db.collection("notes")
+    .find(filter)
+    .sort({ createdAt: -1 })
+    .toArray();
 }
-
 /**
  * Query 14: projectTaskSummary
  * -------------------------------------------------------------
