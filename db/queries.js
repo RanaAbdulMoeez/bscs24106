@@ -375,8 +375,20 @@ async function searchNotes(db, ownerId, tags, projectId) {
  *       $unwind turns a 1-element array into the element itself.
  */
 async function projectTaskSummary(db, ownerId) {
-  // TODO: implement
-  throw new Error('projectTaskSummary not implemented');
+  const pipeline = [
+    { $match: { ownerId: ownerId } },
+    { $group: {
+        _id: "$projectId",
+        todo: { $sum: { $cond: [{ $eq: ["$status", "todo"] }, 1, 0] } },
+        inProgress: { $sum: { $cond: [{ $eq: ["$status", "in-progress"] }, 1, 0] } },
+        done: { $sum: { $cond: [{ $eq: ["$status", "done"] }, 1, 0] } },
+        total: { $sum: 1 }
+    }},
+    { $lookup: { from: "projects", localField: "_id", foreignField: "_id", as: "proj" } },
+    { $unwind: "$proj" },
+    { $project: { projectName: "$proj.name", todo: 1, inProgress: 1, done: 1, total: 1 } }
+  ];
+  return await db.collection("tasks").aggregate(pipeline).toArray();
 }
 
 /**
@@ -408,9 +420,22 @@ async function projectTaskSummary(db, ownerId) {
  *       you only want to look up 10 projects, not all of them.
  */
 async function recentActivityFeed(db, ownerId) {
-  // TODO: implement
-  throw new Error('recentActivityFeed not implemented');
+  const pipeline = [
+    { $match: { ownerId: ownerId } },
+    { $sort: { createdAt: -1 } },
+    { $limit: 10 },
+    { $lookup: { from: "projects", localField: "projectId", foreignField: "_id", as: "proj" } },
+    { $unwind: "$proj" },
+    { $project: { title: 1, status: 1, priority: 1, createdAt: 1, projectName: "$proj.name" } }
+  ];
+  return await db.collection("tasks").aggregate(pipeline).toArray();
 }
+
+module.exports = {
+  signupUser, loginFindUser, listUserProjects, createProject, archiveProject,
+  listProjectTasks, createTask, updateTaskStatus, addTaskTag, removeTaskTag,
+  toggleSubtask, deleteTask, searchNotes, projectTaskSummary, recentActivityFeed
+};
 
 // =============================================================================
 //  EXPORTS — do not edit
