@@ -106,7 +106,78 @@ const { connect } = require('./db/connection');
     createdAt: new Date()
   })).insertedId;
 
+  //tasks
+  await db.collection('tasks').insertOne({
+    ownerId: uID1,
+    projectId: pID1,
+    title: "Design UI",
+    status: "in-progress",
+    priority: 1,
+    tags: ["ui", "frontend"],
+    subtasks: [
+      { title: "Color Theme", done: true },
+      { title: "Design Theme", done: false }
+    ],
+    dueDate: new Date("2026-09-15"),
+    createdAt: new Date()
+  });  
 
+  await db.collection('tasks').insertOne({
+    ownerId: uID1,
+    projectId: pID2,
+    title: "Middleware Design",
+    status: "in-progress",
+    priority: 2,
+    tags: ["backend"],
+    subtasks: [
+      { title: "selecting hashing protocol", done: true },
+    ],
+    dueDate: new Date("2026-6-25"),
+    createdAt: new Date()
+  });  
+
+  await db.collection('tasks').insertOne({
+    ownerId: uID2,
+    projectId: pID3,
+    title: "Design UI",
+    status: "in-progress",
+    priority: 1,
+    tags: ["ui", "frontend"],
+    subtasks: [
+      { title: "Color Theme", done: true },
+      { title: "Design Theme", done: false }
+    ],
+    dueDate: new Date("2026-10-15"),
+    createdAt: new Date()
+  });  
+
+  await db.collection('tasks').insertOne({
+    ownerId: uID2,
+    projectId: pID4,
+    title: "Middleware Design",
+    status: "in-progress",
+    priority: 2,
+    tags: ["backend"],
+    subtasks: [
+      { title: "selecting hashing protocol", done: true },
+    ],
+    dueDate: new Date("2026-11-25"),
+    createdAt: new Date()
+  });  
+
+  await db.collection('tasks').insertOne({
+    ownerId: uID2,
+    projectId: pID4,
+    title: "Payment Gateway Setup",
+    status: "in-progress",
+    priority: 1,
+    tags: [],
+    subtasks: [
+      { title: "Hello Jalal, this lab was pointless", done: false }
+    ],
+    dueDate: new Date("2026-09-15"),
+    createdAt: new Date()
+  });  
 
 
 
