@@ -59,7 +59,7 @@ const { connect } = require('./db/connection');
   const u1 = await db.collection('users').insertOne({
     username: 'rohail',
     email: 'rohail@gmail.com',
-    password: hashedPassword,
+    password: u1pass,
     createdAt: new Date()
   });
   const uID1 = u1.insertedId
@@ -68,7 +68,7 @@ const { connect } = require('./db/connection');
   const u2 = await db.collection('users').insertOne({
     username: 'talha',
     email: 'talha@gmail.com',
-    password: hashedPassword,
+    password: u2pass,
     createdAt: new Date()
   });
   const uID2 = u2.insertedId
@@ -179,6 +179,54 @@ const { connect } = require('./db/connection');
     createdAt: new Date()
   });  
 
+  //notes
+// =============================================================================
+  // notes (5 total)
+  // =============================================================================
+  
+  await db.collection('notes').insertMany([
+    {
+      ownerId: uID1,
+      projectId: pID1,
+      title: "UI Inspiration",
+      body: "Check out Dribbble for some clean SaaS landing page layouts. Rohail likes the minimal look.",
+      tags: ["design", "frontend"],
+      pinned: true,
+      createdAt: new Date()
+    },
+    {
+      ownerId: uID1,
+      projectId: pID2,
+      title: "Backend Auth Thoughts",
+      body: "We should consider using JWT for session management in the Website Backend.",
+      tags: ["security", "research"],
+      createdAt: new Date()
+    },
+    {
+      ownerId: uID2,
+      projectId: pID3,
+      title: "Asset folder structure",
+      body: "Keep all SVG icons in /assets/icons/ to keep the App Frontend clean.",
+      tags: ["organization"],
+      createdAt: new Date()
+    },
+    {
+      ownerId: uID1,
+      title: "General Reminder",
+      body: "Renew the domain name for the personal portfolio next month.",
+      tags: ["admin"],
+      createdAt: new Date()
+    },
+    {
+      ownerId: uID2,
+      title: "Talha's Meeting Notes",
+      body: "The client mentioned they want the mobile app to support RTL languages eventually.",
+      tags: ["feedback"],
+      createdAt: new Date()
+    }
+  ]);
+
+  console.log('Database seeded successfully!');  
 
 
 
